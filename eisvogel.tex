@@ -34,7 +34,8 @@
 %%
 
 %%
-% This is the Eisvogel pandoc LaTeX template.
+% This is a modified Eisvogel pandoc LaTeX template.
+% Version 2.4.2
 %
 % For usage information and examples visit the official GitHub page:
 % https://github.com/Wandmalfarbe/pandoc-latex-template
@@ -69,7 +70,7 @@ $endif$
 $for(classoption)$
   $classoption$$sep$,
 $endfor$
-  ,captions=tableheading
+  ,captions=tableheading    % 表格的标题在表格上面
 ]{$if(beamer)$$documentclass$$else$$if(book)$scrbook$else$scrartcl$endif$$endif$}
 $if(beamer)$
 $if(background-image)$
@@ -127,12 +128,15 @@ $endif$
 $if(beamerarticle)$
 \usepackage{beamerarticle} % needs to be loaded first
 $endif$
+\usepackage{mhchem}     %  普通化学公式支持
 \usepackage{amsmath,amssymb}
-$if(linestretch)$
+$if(linestretch)$   % 行间距，默认 1.2
 \usepackage{setspace}
 $else$
 % Use setspace anyway because we change the default line spacing.
 % The spacing is changed early to affect the titlepage and the TOC.
+% 无论如何都要使用setspace，因为我们改变了默认的行间距。
+% 提前更改行间距以影响标题页和目录。
 \usepackage{setspace}
 \setstretch{1.2}
 $endif$
@@ -235,6 +239,7 @@ $endif$
 \fi
 $if(zero-width-non-joiner)$
 %% Support for zero-width non-joiner characters.
+%% 零宽度不连字字符（Zero-Width Non-Joiner，ZWNJ）的支持
 \makeatletter
 \def\zerowidthnonjoiner{%
   % Prevent ligatures and adjust kerning, but still support hyphenating.
@@ -253,6 +258,7 @@ $if(zero-width-non-joiner)$
 %% End of ZWNJ support
 $endif$
 % Use upquote if available, for straight quotes in verbatim environments
+% 对于 verbatim 环境中的直引号，如果有的话，使用直引号
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \IfFileExists{microtype.sty}{% use microtype if available
   \usepackage[$for(microtypeoptions)$$microtypeoptions$$sep$,$endfor$]{microtype}
@@ -274,20 +280,21 @@ $endif$
 $if(verbatim-in-note)$
 \usepackage{fancyvrb}
 $endif$
-\usepackage{xcolor}
-\definecolor{default-linkcolor}{HTML}{A50000}
-\definecolor{default-filecolor}{HTML}{A50000}
-\definecolor{default-citecolor}{HTML}{4077C0}
-\definecolor{default-urlcolor}{HTML}{4077C0}
+\usepackage{xcolor}   % 颜色设置
+\definecolor{default-linkcolor}{HTML}{20a162}
+\definecolor{default-filecolor}{HTML}{20a162}
+\definecolor{default-citecolor}{HTML}{20a162}
+\definecolor{default-urlcolor}{HTML}{1677b3}
 $if(footnotes-pretty)$
 % load footmisc in order to customize footnotes (footmisc has to be loaded before hyperref, cf. https://tex.stackexchange.com/a/169124/144087)
+% 加载 footmisc 以定制脚注（在 hyperref 之前必须加载 footmisc）
 \usepackage[hang,flushmargin,bottom,multiple]{footmisc}
 \setlength{\footnotemargin}{0.8em} % set space between footnote nr and text
 \setlength{\footnotesep}{\baselineskip} % set space between multiple footnotes
 \setlength{\skip\footins}{0.3cm} % set space between page content and footnote
 \setlength{\footskip}{0.9cm} % set space between footnote and page bottom
 $endif$
-$if(geometry)$
+$if(geometry)$    % 页面布局
 $if(beamer)$
 \geometry{$for(geometry)$$geometry$$sep$,$endfor$}
 $else$
@@ -295,7 +302,7 @@ $else$
 $endif$
 $else$
 $if(beamer)$
-$else$
+$else$    % 默认页面布局
 \usepackage[margin=2.5cm,includehead=true,includefoot=true,centering,$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
 $endif$
 $endif$
@@ -312,7 +319,7 @@ $if(listings)$
 \lstset{defaultdialect=[5.3]Lua}
 \lstset{defaultdialect=[x86masm]Assembler}
 $endif$
-$if(listings-no-page-break)$
+$if(listings-no-page-break)$    % 避免代码块分页
 \usepackage{etoolbox}
 \BeforeBeginEnvironment{lstlisting}{\par\noindent\begin{minipage}{\linewidth}}
 \AfterEndEnvironment{lstlisting}{\end{minipage}\par\addvspace{\topskip}}
@@ -348,21 +355,31 @@ $if(beamer)$
 \makeatother
 $else$
 % Correct order of tables after \paragraph or \subparagraph
+% 在 \paragraph 或 \subparagraph 之后的表格顺序正确
 \usepackage{etoolbox}
 \makeatletter
 \patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
 \makeatother
+
+% Font size settings for tables
+% 表格字体大小设置
+\newcommand{\tablefontsize}{\small}
+
+\AtBeginEnvironment{longtable}{\tablefontsize}
+
 % Allow footnotes in longtable head/foot
+% 允许在长表头/尾中使用脚注
 \IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
 \makesavenoteenv{longtable}
 $endif$
 $endif$
 % add backlinks to footnote references, cf. https://tex.stackexchange.com/questions/302266/make-footnote-clickable-both-ways
+% 在脚注引用中添加反向链接
 $if(footnotes-disable-backlinks)$
 $else$
 \usepackage{footnotebackref}
 $endif$
-$if(graphics)$
+$if(graphics)$    % 图片宏包
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -371,11 +388,15 @@ $if(graphics)$
 % Scale images if necessary, so that they will not overflow the page
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
+% 如果需要的话，按比例缩放图像，以防止默认情况下溢出页面边距，
+% 并且仍然可以使用\includegraphics[width, height, ...]{}中的显式选项覆盖默认设置。
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
 % Set default figure placement to htbp
 \makeatletter
 % Make use of float-package and set default placement for figures to H.
 % The option H means 'PUT IT HERE' (as  opposed to the standard h option which means 'You may put it here if you like').
+% 使用 float 宏包，并将图像的默认放置位置设置为 H。
+% 选项 H 表示“把它放在这里”（与标准 h 选项相反，后者表示“如果你喜欢，可以把它放在这里”）。
 \usepackage{float}
 \floatplacement{figure}{$if(float-placement-figure)$$float-placement-figure$$else$H$endif$}
 \makeatother
@@ -383,7 +404,7 @@ $endif$
 $if(svg)$
 \usepackage{svg}
 $endif$
-$if(strikeout)$
+$if(strikeout)$   % 删除线或下划线
 $-- also used for underline
 \ifLuaTeX
   \usepackage{luacolor}
@@ -414,6 +435,7 @@ $if(beamer)$
 $else$
 $if(block-headings)$
 % Make \paragraph and \subparagraph free-standing
+% 使 \paragraph 和 \subparagraph 成为独立的段落
 \ifx\paragraph\undefined\else
   \let\oldparagraph\paragraph
   \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
@@ -427,7 +449,7 @@ $endif$
 $if(pagestyle)$
 \pagestyle{$pagestyle$}
 $endif$
-$if(csl-refs)$
+$if(csl-refs)$  % 处理 CSL 参考文献
 % definitions for citeproc citations
 \NewDocumentCommand\citeproctext{}{}
 \NewDocumentCommand\citeproc{mm}{%
@@ -596,6 +618,7 @@ $endif$
 
 %
 % for the background color of the title page
+% 标题页背景
 %
 $if(titlepage)$
 \usepackage{pagecolor}
@@ -617,6 +640,8 @@ $endif$
 %
 % When using babel or polyglossia with biblatex, loading csquotes is recommended
 % to ensure that quoted texts are typeset according to the rules of your main language.
+% 使用 babel 或 polyglossia 与 biblatex 一起使用时，建议加载 csquotes，
+% 以确保引用的文本按照您主要语言的规则进行排版。
 %
 \usepackage{csquotes}
 
@@ -632,6 +657,7 @@ $endif$
 
 %
 % blockquote
+% 引用块
 %
 \definecolor{blockquote-border}{RGB}{221,221,221}
 \definecolor{blockquote-text}{RGB}{119,119,119}
@@ -690,7 +716,8 @@ $else$
 $endif$
 % When using the classes report, scrreprt, book,
 % scrbook or memoir, uncomment the following line.
-%\addtokomafont{chapter}{\color{heading-color}}
+% 当使用 report、scrreprt、book、scrbook 或 memoir 类时，请取消下面一行的注释。
+\addtokomafont{chapter}{\color{heading-color}}
 
 %
 % variables for title, author and date
@@ -734,6 +761,7 @@ $endif$
 
 %
 % remove paragraph indentation
+% 去除段落缩进
 %
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt plus 2pt minus 1pt}
@@ -745,7 +773,7 @@ $endif$
 %
 %
 
-$if(listings)$
+$if(listings)$    % 代码块
 
 %
 % general listing colors
@@ -906,6 +934,29 @@ $endif$
 $endif$
 $endif$
 
+
+% 缩进
+% \usepackage{ctex} % 调用中文字体宏包
+\usepackage{indentfirst}  % 调用首行缩进宏包
+\setlength{\parindent}{2em}  % 设置首行缩进为2字符
+
+% ------------------------------------
+% 列表项缩进
+% ------------------------------------
+\usepackage{enumitem}
+\let\oldenumerate\enumerate
+\let\endoldenumerate\endenumerate
+\renewenvironment{enumerate}{
+        \oldenumerate[leftmargin=3.75em]} {
+\endoldenumerate}
+
+\let\olditemize\itemize
+\let\endolditemize\enditemize
+\renewenvironment{itemize}{
+        \olditemize[leftmargin=3.25em]} {
+\endolditemize}
+
+
 %%
 %% end added
 %%
@@ -914,6 +965,7 @@ $endif$
 
 %%
 %% begin titlepage
+%% 封面
 %%
 $if(beamer)$
 $else$
@@ -952,7 +1004,7 @@ $if(titlepage-background)$
   {\Large \textsf{$subtitle$}}
   $endif$
   \vskip 2em
-  \noindent {\Large \textsf{$for(author)$$author$$sep$, $endfor$} \vskip 0.6em \textsf{$date$}}
+  \noindent {\Large \textit{$for(author)$$author$$sep$, $endfor$} \vskip 0.6em \textsf{$date$}}
   \vfill
 }
 $else$
@@ -989,6 +1041,78 @@ $endif$
 %%
 %% end titlepage
 %%
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 修订记录
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setcounter{page}{1}
+\pagenumbering{Roman}
+
+$if(history)$
+\setlength{\parindent}{0.5em}
+
+{\Large \textbf{修订记录}}
+
+% 表格开始
+\begin{longtable}[]{@{}cccl@{}}
+
+        % 表头
+        \toprule
+        \begin{minipage}[b]{0.07\columnwidth}\centering
+                \textbf{序号}\strut
+        \end{minipage} & \begin{minipage}[b]{0.1\columnwidth}\centering
+                                 \textbf{修订人}\strut
+                         \end{minipage} & \begin{minipage}[b]{0.3\columnwidth}\centering
+                                                  \textbf{修订时间}\strut
+                                          \end{minipage} & \begin{minipage}[b]{0.43\columnwidth}\centering
+                                                                   \textbf{修订记录}\strut
+                                                           \end{minipage}\tabularnewline
+        \midrule
+        \endfirsthead
+        \toprule
+        \begin{minipage}[b]{0.07\columnwidth}\centering
+                \textbf{序号}\strut
+        \end{minipage} & \begin{minipage}[b]{0.1\columnwidth}\centering
+                                 \textbf{修订人}\strut
+                         \end{minipage} & \begin{minipage}[b]{0.3\columnwidth}\centering
+                                                  \textbf{修订时间}\strut
+                                          \end{minipage} & \begin{minipage}[b]{0.43\columnwidth}\centering
+                                                                   \textbf{修订记录}\strut
+                                                           \end{minipage}\tabularnewline
+        \midrule
+        \endhead
+        % 表头结束
+
+        % 表格正文
+        $for(history)$
+
+        \begin{minipage}[t]{0.07\columnwidth}\centering
+                $history.version$\strut
+        \end{minipage} & \begin{minipage}[t]{0.1\columnwidth}\centering
+                                 $history.author$\strut
+                         \end{minipage} & \begin{minipage}[t]{0.3\columnwidth}\centering
+                                                  $history.date$\strut
+                                          \end{minipage} & \begin{minipage}[t]{0.43\columnwidth}\raggedright
+
+                                                                   $for(history.desc)$
+
+                                                                   $history.desc$
+                                                                   $endfor$\strut
+                                                                   % end of items
+                                                           \end{minipage}\tabularnewline
+        $endfor$
+        % 表格正文结束
+
+        \bottomrule
+\end{longtable}
+
+\newpage
+\setlength{\parindent}{2em}
+$endif$
+
+
+
 
 $if(has-frontmatter)$
 \frontmatter
